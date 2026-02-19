@@ -1,0 +1,187 @@
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #e67e22;
+    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --text-color: #333;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-gradient);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 2rem;
+    animation: fadeInDown 1s ease-out;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.quote-card {
+    background: var(--card-bg);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+    animation: fadeInUp 1s ease-out 0.3s backwards;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.quote-card:hover {
+    transform: translateY(-5px);
+}
+
+.quote-content {
+    margin-bottom: 2rem;
+}
+
+#quote-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    line-height: 1.4;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+#quote-author {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.actions {
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+}
+
+.primary:hover {
+    background: #34495e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
+}
+
+.primary:active {
+    transform: translateY(0);
+}
+
+footer {
+    margin-top: 3rem;
+    font-size: 0.8rem;
+    color: #888;
+    animation: fadeIn 1s ease-out 0.6s backwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #ecf0f1;
+        --bg-gradient: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+        --card-bg: rgba(255, 255, 255, 0.1);
+        --text-color: #ecf0f1;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .subtitle {
+        color: #bdc3c7;
+    }
+
+    .quote-card {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .primary {
+        background: #e67e22;
+        color: white;
+    }
+
+    .primary:hover {
+        background: #d35400;
+    }
+}
