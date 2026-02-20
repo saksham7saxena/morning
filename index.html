@@ -8,32 +8,65 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="container">
-        <header>
+    <div class="dashboard">
+        <header class="header">
             <h1 id="greeting">Good Morning</h1>
-            <p class="subtitle">Start your day with positivity</p>
+            <div id="weather-widget" class="weather">
+                <!-- Static weather placeholder. Edit manually in HTML -->
+                <span class="weather-icon">☀️</span>
+                <span class="weather-temp" id="weather-temp">72°F</span>
+                <span class="weather-desc" id="weather-desc">Sunny & Calm</span>
+            </div>
         </header>
 
-        <main class="quote-card">
-            <div class="quote-content">
-                <p id="quote-text">"The only way to do great work is to love what you do."</p>
-                <p id="quote-author">- API Loading...</p>
+        <main class="grid-container">
+            <!-- Left Column -->
+            <div class="col-left">
+                <section class="widget quote-widget">
+                    <div class="quote-content">
+                        <p id="quote-text">"Loading inspiration..."</p>
+                        <p id="quote-author"></p>
+                    </div>
+                </section>
+
+                <section class="widget nudge-widget">
+                    <h3>Morning Focus</h3>
+                    <p id="nudge-text">Loading...</p>
+                </section>
             </div>
 
-            <div class="actions">
-                <button id="new-quote-btn" class="btn primary">New Inspiration</button>
+            <!-- Middle Column -->
+            <div class="col-main">
+                <section class="widget todo-widget">
+                    <h3>Today's Top 5</h3>
+                    <div class="todo-input-container">
+                        <input type="text" id="todo-input" placeholder="What's essential today?" maxlength="60">
+                        <button id="add-todo-btn">+</button>
+                    </div>
+                    <ul id="todo-list" class="todo-list">
+                        <!-- Items injected here by JS -->
+                    </ul>
+                    <p class="todo-count"><span id="todo-count">0</span>/5</p>
+                </section>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-right">
+                <section class="widget news-widget">
+                    <h3>Morning Briefing</h3>
+                    <ul id="news-list" class="news-list">
+                        <!-- News injected here by JS -->
+                    </ul>
+                </section>
             </div>
         </main>
 
-        <footer>
-            <p>Made with ❤️ for your morning</p>
-        </footer>
     </div>
     <script src="script.js"></script>
 </body>
