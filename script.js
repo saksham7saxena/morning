@@ -58,6 +58,7 @@ function getRandomItems(arr, count) {
 const AppDashboard = {
     init() {
         this.updateGreeting();
+        this.loadWeather();
         this.loadQuote();
         this.loadNudge();
         this.loadNews();
@@ -97,6 +98,26 @@ const AppDashboard = {
             `;
             newsList.appendChild(li);
         });
+    },
+
+    async loadWeather() {
+        try {
+            // wttr.in automatically detects location from IP and formats as: icon|temp|description
+            const response = await fetch('https://wttr.in/?format=%c|%t|%C');
+            if (response.ok) {
+                const data = await response.text();
+                const [icon, temp, desc] = data.trim().split('|');
+
+                if (icon && temp && desc) {
+                    document.getElementById('weather-icon').textContent = icon;
+                    document.getElementById('weather-temp').textContent = temp.replace('+', ''); // Remove positive sign
+                    document.getElementById('weather-desc').textContent = desc;
+                }
+            }
+        } catch (error) {
+            console.error("Could not fetch weather data. Falling back to default.", error);
+            // Defaults will remain visible
+        }
     }
 };
 
