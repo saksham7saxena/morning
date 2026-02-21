@@ -102,16 +102,18 @@ const AppDashboard = {
 
     async loadWeather() {
         try {
-            // wttr.in automatically detects location from IP and formats as: icon|temp|description
-            const response = await fetch('https://wttr.in/?format=%c|%t|%C');
+            // wttr.in automatically detects location from IP and formats as: icon|temp|description|location
+            const response = await fetch('https://wttr.in/?format=%c|%t|%C|%l');
             if (response.ok) {
                 const data = await response.text();
-                const [icon, temp, desc] = data.trim().split('|');
+                const [icon, temp, desc, loc] = data.trim().split('|');
 
                 if (icon && temp && desc) {
                     document.getElementById('weather-icon').textContent = icon;
                     document.getElementById('weather-temp').textContent = temp.replace('+', ''); // Remove positive sign
-                    document.getElementById('weather-desc').textContent = desc;
+
+                    const locationName = loc ? loc.split(',')[0].trim() : '';
+                    document.getElementById('weather-desc').textContent = locationName ? `${desc} in ${locationName}` : desc;
                 }
             }
         } catch (error) {
