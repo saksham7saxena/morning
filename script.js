@@ -57,6 +57,7 @@ function getRandomItems(arr, count) {
  */
 const AppDashboard = {
     init() {
+        this.initClock();
         this.updateGreeting();
         this.loadWeather();
         this.loadQuote();
@@ -73,10 +74,29 @@ const AppDashboard = {
         document.getElementById('greeting').textContent = greeting;
     },
 
-    loadQuote() {
-        const quote = getRandomItem(quotesDataset);
-        document.getElementById('quote-text').textContent = `"${quote.text}"`;
-        document.getElementById('quote-author').textContent = quote.author;
+    initClock() {
+        const timeEl = document.getElementById('current-time');
+        const updateTime = () => {
+            const now = new Date();
+            timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        };
+        updateTime();
+        setInterval(updateTime, 1000);
+    },
+
+    async loadQuote() {
+        try {
+            const response = await fetch('https://dummyjson.com/quotes/random');
+            if (!response.ok) throw new Error("Quote fetch failed");
+            const data = await response.json();
+            document.getElementById('quote-text').textContent = `"${data.quote}"`;
+            document.getElementById('quote-author').textContent = data.author;
+        } catch (e) {
+            console.warn("Quote fetch failed, using local fallback", e);
+            const quote = getRandomItem(quotesDataset);
+            document.getElementById('quote-text').textContent = `"${quote.text}"`;
+            document.getElementById('quote-author').textContent = quote.author;
+        }
     },
 
     loadNudge() {
@@ -84,20 +104,41 @@ const AppDashboard = {
         document.getElementById('nudge-text').textContent = nudge;
     },
 
-    loadNews() {
-        const selectedNews = getRandomItems(newsDataset, 3);
+    async loadNews() {
         const newsList = document.getElementById('news-list');
-        newsList.innerHTML = ''; // Clear fallback
+        try {
+            // Uses RSS2JSON to convert NYT World News RSS into JSON format
+            const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/World.xml');
+            if (!response.ok) throw new Error("News fetch failed");
+            const data = await response.json();
 
-        selectedNews.forEach(news => {
-            const li = document.createElement('li');
-            li.className = 'news-item';
-            li.innerHTML = `
-                <span class="news-category">${news.category}</span>
-                <span class="news-headline">${news.headline}</span>
-            `;
-            newsList.appendChild(li);
-        });
+            const selectedNews = data.items.slice(0, 3);
+            newsList.innerHTML = '';
+
+            selectedNews.forEach(news => {
+                const li = document.createElement('li');
+                li.className = 'news-item';
+                li.innerHTML = `
+                    <span class="news-category">World News</span>
+                    <span class="news-headline"><a href="${news.link}" target="_blank" style="text-decoration:none; color:inherit;">${news.title}</a></span>
+                `;
+                newsList.appendChild(li);
+            });
+        } catch (e) {
+            console.warn("News fetch failed, using local fallback", e);
+            const selectedNews = getRandomItems(newsDataset, 3);
+            newsList.innerHTML = '';
+
+            selectedNews.forEach(news => {
+                const li = document.createElement('li');
+                li.className = 'news-item';
+                li.innerHTML = `
+                    <span class="news-category">${news.category}</span>
+                    <span class="news-headline">${news.headline}</span>
+                `;
+                newsList.appendChild(li);
+            });
+        }
     },
 
     async loadWeather() {

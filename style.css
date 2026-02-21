@@ -67,6 +67,16 @@ h1 {
     color: var(--text-main);
 }
 
+.clock {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.divider {
+    opacity: 0.3;
+}
+
 /* Grid Layout */
 .grid-container {
     display: grid;
