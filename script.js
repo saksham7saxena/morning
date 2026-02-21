@@ -102,20 +102,50 @@ const AppDashboard = {
 
     async loadWeather() {
         try {
-            // wttr.in automatically detects location from IP and formats as: icon|temp|description|location
-            const response = await fetch('https://wttr.in/?format=%c|%t|%C|%l');
-            if (response.ok) {
-                const data = await response.text();
-                const [icon, temp, desc, loc] = data.trim().split('|');
+            // Step 1: Get location from IP
+            const geoResponse = await fetch('https://get.geojs.io/v1/ip/geo.json');
+            if (!geoResponse.ok) throw new Error('Location fetch failed');
+            const geoData = await geoResponse.json();
 
-                if (icon && temp && desc) {
-                    document.getElementById('weather-icon').textContent = icon;
-                    document.getElementById('weather-temp').textContent = temp.replace('+', ''); // Remove positive sign
+            const lat = geoData.latitude;
+            const lon = geoData.longitude;
+            const city = geoData.city;
 
-                    const locationName = loc ? loc.split(',')[0].trim() : '';
-                    document.getElementById('weather-desc').textContent = locationName ? `${desc} in ${locationName}` : desc;
-                }
-            }
+            // Step 2: Get weather from Open-Meteo
+            const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`);
+            if (!weatherResponse.ok) throw new Error('Weather fetch failed');
+            const weatherData = await weatherResponse.json();
+
+            const temp = Math.round(weatherData.current_weather.temperature);
+            const weatherCode = weatherData.current_weather.weathercode;
+            const isDay = weatherData.current_weather.is_day;
+
+            // Simple WMO code mapper
+            const weatherMap = {
+                0: { desc: "Clear", icon: isDay ? "☀️" : "🌙" },
+                1: { desc: "Mostly Clear", icon: isDay ? "🌤️" : "☁️" },
+                2: { desc: "Partly Cloudy", icon: "⛅" },
+                3: { desc: "Overcast", icon: "☁️" },
+                45: { desc: "Fog", icon: "🌫️" },
+                48: { desc: "Rime Fog", icon: "🌫️" },
+                51: { desc: "Light Drizzle", icon: "🌧️" },
+                53: { desc: "Moderate Drizzle", icon: "🌧️" },
+                55: { desc: "Dense Drizzle", icon: "🌧️" },
+                61: { desc: "Slight Rain", icon: "🌦️" },
+                63: { desc: "Moderate Rain", icon: "🌧️" },
+                65: { desc: "Heavy Rain", icon: "🌧️" },
+                71: { desc: "Slight Snow", icon: "🌨️" },
+                73: { desc: "Moderate Snow", icon: "❄️" },
+                75: { desc: "Heavy Snow", icon: "❄️" },
+                95: { desc: "Thunderstorm", icon: "⛈️" }
+            };
+
+            const condition = weatherMap[weatherCode] || { desc: "Clear", icon: "☀️" };
+
+            document.getElementById('weather-icon').textContent = condition.icon;
+            document.getElementById('weather-temp').textContent = `${temp}°F`;
+            document.getElementById('weather-desc').textContent = `${condition.desc} in ${city}`;
+
         } catch (error) {
             console.error("Could not fetch weather data. Falling back to default.", error);
             // Defaults will remain visible
