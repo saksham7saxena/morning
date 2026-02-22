@@ -10,6 +10,26 @@
     --radius: 16px;
     --font-sans: 'Inter', sans-serif;
     --font-serif: 'Lora', serif;
+    --nudge-bg: #2d3142;
+    --nudge-text: #ffffff;
+    --nudge-h3: rgba(255, 255, 255, 0.6);
+    --quote-bg-start: #ffffff;
+    --quote-bg-end: #faf9f6;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-main: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --accent: #e5cdb4;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --nudge-bg: #2a2d3e;
+    --nudge-text: #e0e0e0;
+    --nudge-h3: rgba(224, 224, 224, 0.6);
+    --quote-bg-start: #1e1e1e;
+    --quote-bg-end: #181818;
 }
 
 * {
@@ -77,6 +97,27 @@ h1 {
     opacity: 0.3;
 }
 
+.theme-toggle {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: transform 0.2s;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:focus {
+    outline: none;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
 /* Grid Layout */
 .grid-container {
     display: grid;
@@ -115,7 +156,7 @@ h1 {
 
 /* Quote Widget */
 .quote-widget {
-    background: linear-gradient(to bottom right, #ffffff, #faf9f6);
+    background: linear-gradient(to bottom right, var(--quote-bg-start), var(--quote-bg-end));
     animation-delay: 0.1s;
 }
 
@@ -136,13 +177,13 @@ h1 {
 
 /* Nudge Widget */
 .nudge-widget {
-    background-color: var(--text-main);
-    color: #ffffff;
+    background-color: var(--nudge-bg);
+    color: var(--nudge-text);
     animation-delay: 0.2s;
 }
 
 .nudge-widget h3 {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--nudge-h3);
 }
 
 #nudge-text {

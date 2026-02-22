@@ -10,6 +10,7 @@ Designed with a premium feel and zero distractions, this personal dashboard incl
 *   **Morning Nudges:** Quick tips to center your focus.
 *   **Today's Top 5 (To-Do):** A focused task list restricted to 5 essential items, resetting daily.
 *   **Morning Briefing:** Top news headlines for a quick scan without the doomscroll.
+*   **Dark Mode:** A built-in dark mode toggle that respects system preferences and remembers your choice.
 
 ## Architecture
 

@@ -351,8 +351,41 @@ const TodoComponent = {
     }
 };
 
+const ThemeComponent = {
+    init() {
+        this.toggleBtn = document.getElementById('theme-toggle');
+        this.currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+
+        if (this.currentTheme) {
+            document.documentElement.setAttribute('data-theme', this.currentTheme);
+            if (this.currentTheme === 'dark') {
+                this.toggleBtn.textContent = '☀️';
+            }
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            this.toggleBtn.textContent = '☀️';
+        }
+
+        this.toggleBtn.addEventListener('click', () => this.toggleTheme());
+    },
+
+    toggleTheme() {
+        let theme = document.documentElement.getAttribute('data-theme');
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            this.toggleBtn.textContent = '🌙';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            this.toggleBtn.textContent = '☀️';
+        }
+    }
+};
+
 // Bootstrap the application when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     AppDashboard.init();
     TodoComponent.init();
+    ThemeComponent.init();
 });
