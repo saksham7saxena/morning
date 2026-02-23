@@ -63,6 +63,7 @@ const AppDashboard = {
         this.loadQuote();
         this.loadNudge();
         this.loadNews();
+        this.loadTechHighlights();
     },
 
     updateGreeting() {
@@ -141,6 +142,78 @@ const AppDashboard = {
         }
     },
 
+    async loadTechHighlights() {
+        const techList = document.getElementById('tech-list');
+        techList.innerHTML = '<li class="news-item">Loading insights...</li>';
+
+        try {
+            // Fetching a popular tech substack (Pragmatic Engineer as an example)
+            // You can change this to any other Substack RSS feed
+            const rssUrl = encodeURIComponent('https://newsletter.pragmaticengineer.com/feed');
+            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+
+            if (!response.ok) throw new Error("Tech feed fetch failed");
+            const data = await response.json();
+
+            // Get top 3 articles
+            const selectedArticles = data.items.slice(0, 3);
+            techList.innerHTML = '';
+
+            selectedArticles.forEach(article => {
+                const li = document.createElement('li');
+                li.className = 'news-item';
+
+                // Format the author/source if available, else use feed title
+                const source = article.author || data.feed.title || "Tech Insight";
+
+                li.innerHTML = `
+                    <span class="news-category">${source}</span>
+                    <span class="news-headline"><a href="${article.link}" target="_blank" style="text-decoration:none; color:inherit;">${article.title}</a></span>
+                `;
+                techList.appendChild(li);
+            });
+        } catch (e) {
+            console.warn("Tech feed fetch failed", e);
+            techList.innerHTML = '<li class="news-item">Failed to load insights. Try again later.</li>';
+        }
+    },
+
+    drawSparkline(hourlyTemps) {
+        const svgPath = document.getElementById('sparkline-path');
+        if (!svgPath || !hourlyTemps || hourlyTemps.length === 0) return;
+
+        // Take next 12 hours
+        const dataKeys = hourlyTemps.slice(0, 12);
+        const minTemp = Math.min(...dataKeys);
+        const maxTemp = Math.max(...dataKeys);
+        const range = maxTemp - minTemp || 1; // Prevent division by zero
+
+        // SVG viewBox is 0 0 100 30.
+        const width = 100;
+        const height = 28; // slightly less than 30 for padding
+        const stepX = width / (dataKeys.length - 1);
+
+        let d = "";
+        dataKeys.forEach((temp, i) => {
+            const x = i * stepX;
+            // Invert Y because SVG 0 is at the top
+            const y = height - ((temp - minTemp) / range) * height + 1;
+
+            if (i === 0) {
+                d += `M ${x},${y} `;
+            } else {
+                // Smooth bezier curve approximations
+                const prevX = (i - 1) * stepX;
+                const prevY = height - ((dataKeys[i - 1] - minTemp) / range) * height + 1;
+                const cp1x = prevX + (stepX * 0.5);
+                const cp2x = x - (stepX * 0.5);
+                d += `C ${cp1x},${prevY} ${cp2x},${y} ${x},${y} `;
+            }
+        });
+
+        svgPath.setAttribute('d', d);
+    },
+
     async loadWeather() {
         try {
             // Step 1: Get location from IP
@@ -152,14 +225,26 @@ const AppDashboard = {
             const lon = geoData.longitude;
             const city = geoData.city;
 
-            // Step 2: Get weather from Open-Meteo
-            const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`);
+            // Step 2: Get weather from Open-Meteo in Celsius with daily AND hourly data
+            // Fetching 2 days of hourly to ensure we have enough continuous forward-looking data
+            const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=2`);
             if (!weatherResponse.ok) throw new Error('Weather fetch failed');
             const weatherData = await weatherResponse.json();
 
-            const temp = Math.round(weatherData.current_weather.temperature);
-            const weatherCode = weatherData.current_weather.weathercode;
-            const isDay = weatherData.current_weather.is_day;
+            const current = weatherData.current_weather;
+            const daily = weatherData.daily;
+            const hourly = weatherData.hourly;
+
+            const temp = Math.round(current.temperature);
+            const weatherCode = current.weathercode;
+            const isDay = current.is_day;
+
+            const highTemp = Math.round(daily.temperature_2m_max[0]);
+            const lowTemp = Math.round(daily.temperature_2m_min[0]);
+
+            // Format sunrise/sunset times
+            const sunriseTime = new Date(daily.sunrise[0]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const sunsetTime = new Date(daily.sunset[0]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             // Simple WMO code mapper
             const weatherMap = {
@@ -183,13 +268,27 @@ const AppDashboard = {
 
             const condition = weatherMap[weatherCode] || { desc: "Clear", icon: "☀️" };
 
+            // Update DOM
             document.getElementById('weather-icon').textContent = condition.icon;
-            document.getElementById('weather-temp').textContent = `${temp}°F`;
+            document.getElementById('weather-temp').textContent = `${temp}°C`;
             document.getElementById('weather-desc').textContent = `${condition.desc} in ${city}`;
+
+            document.getElementById('weather-high').textContent = `${highTemp}°`;
+            document.getElementById('weather-low').textContent = `${lowTemp}°`;
+            document.getElementById('weather-sunrise').textContent = sunriseTime;
+            document.getElementById('weather-sunset').textContent = sunsetTime;
+
+            // Generate Sparkline Data
+            const nowIso = new Date().toISOString().slice(0, 14) + "00"; // YYYY-MM-DDTHH:00
+            // Find current hour index in the hourly.time array
+            const currentIndex = hourly.time.findIndex(timeStr => timeStr.startsWith(nowIso));
+            if (currentIndex !== -1) {
+                const upcomingTemps = hourly.temperature_2m.slice(currentIndex, currentIndex + 12);
+                this.drawSparkline(upcomingTemps);
+            }
 
         } catch (error) {
             console.error("Could not fetch weather data. Falling back to default.", error);
-            // Defaults will remain visible
         }
     }
 };
@@ -353,33 +452,52 @@ const TodoComponent = {
 
 const ThemeComponent = {
     init() {
-        this.toggleBtn = document.getElementById('theme-toggle');
+        this.toggleBtn = document.getElementById('theme-checkbox');
         this.currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
 
         if (this.currentTheme) {
             document.documentElement.setAttribute('data-theme', this.currentTheme);
             if (this.currentTheme === 'dark') {
-                this.toggleBtn.textContent = '☀️';
+                this.toggleBtn.checked = true;
             }
         } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.setAttribute('data-theme', 'dark');
-            this.toggleBtn.textContent = '☀️';
+            this.toggleBtn.checked = true;
         }
 
-        this.toggleBtn.addEventListener('click', () => this.toggleTheme());
+        this.toggleBtn.addEventListener('change', () => this.toggleTheme());
     },
 
     toggleTheme() {
-        let theme = document.documentElement.getAttribute('data-theme');
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
-            this.toggleBtn.textContent = '🌙';
-        } else {
+        if (this.toggleBtn.checked) {
             document.documentElement.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
-            this.toggleBtn.textContent = '☀️';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
         }
+    }
+};
+
+const TabsComponent = {
+    init() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons and panels
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanels.forEach(p => p.classList.remove('active'));
+
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                // Show corresponding panel
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
     }
 };
 
@@ -388,4 +506,5 @@ document.addEventListener('DOMContentLoaded', () => {
     AppDashboard.init();
     TodoComponent.init();
     ThemeComponent.init();
+    TabsComponent.init();
 });

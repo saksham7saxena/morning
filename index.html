@@ -7,51 +7,79 @@
     <title>Morning Inspiration</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
+    <link <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 
 <body>
     <div class="dashboard">
         <header class="header">
-            <h1 id="greeting">Good Morning</h1>
-            <div id="weather-widget" class="weather">
-                <!-- Clock -->
-                <span class="clock" id="current-time">--:--</span>
-                <span class="divider">|</span>
-                <!-- Dynamic weather placeholder -->
-                <span class="weather-icon" id="weather-icon">☀️</span>
-                <span class="weather-temp" id="weather-temp">72°F</span>
-                <span class="weather-desc" id="weather-desc">Sunny & Calm</span>
-                <span class="divider">|</span>
-                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+            <div class="header-left">
+                <h1 id="greeting">Good Morning</h1>
+                <div class="quote-container">
+                    <p id="quote-text">"Loading inspiration..."</p>
+                    <p id="quote-author"></p>
+                </div>
+            </div>
+            <div class="controls-container" id="controls-container">
+                <div class="controls-main">
+                    <!-- Clock -->
+                    <span class="clock" id="current-time">--:--</span>
+                    <div class="weather-brief">
+                        <span class="weather-icon" id="weather-icon">☀️</span>
+                        <span class="weather-temp" id="weather-temp">--°C</span>
+                    </div>
+                    <label class="theme-switch" aria-label="Toggle dark mode">
+                        <input type="checkbox" id="theme-checkbox">
+                        <span class="slider round">
+                            <span class="icon-sun">☀️</span>
+                            <span class="icon-moon">🌙</span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Expanded Details (Hover/Click) -->
+                <div class="controls-details" id="controls-details">
+                    <div class="weather-meta">
+                        <span class="weather-desc" id="weather-desc">Loading...</span>
+                        <div class="weather-hl">
+                            <span title="High">H:<span id="weather-high">--</span></span>
+                            <span title="Low">L:<span id="weather-low">--</span></span>
+                        </div>
+                    </div>
+
+                    <div class="sparkline-container">
+                        <svg id="temp-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path id="sparkline-path" d="" fill="none" stroke="var(--accent)" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="sparkline-labels">
+                            <span>Now</span>
+                            <span>+12h</span>
+                        </div>
+                    </div>
+
+                    <div class="sun-times">
+                        <span title="Sunrise">🌅 <span id="weather-sunrise">--</span></span>
+                        <span title="Sunset">🌇 <span id="weather-sunset">--</span></span>
+                    </div>
+                </div>
             </div>
         </header>
 
         <main class="grid-container">
-            <!-- Left Column -->
-            <div class="col-left">
-                <section class="widget quote-widget">
-                    <div class="quote-content">
-                        <p id="quote-text">"Loading inspiration..."</p>
-                        <p id="quote-author"></p>
-                    </div>
-                </section>
-
-                <section class="widget nudge-widget">
-                    <h3>Morning Focus</h3>
-                    <p id="nudge-text">Loading...</p>
-                </section>
-            </div>
-
-            <!-- Middle Column -->
+            <!-- Central Focus Area: Todos -->
             <div class="col-main">
                 <section class="widget todo-widget">
-                    <h3>Today's Top 5</h3>
+                    <div class="todo-header-container">
+                        <h3>Today's Top 5</h3>
+                        <p id="nudge-text" class="nudge-prompt">Loading...</p>
+                    </div>
                     <div class="todo-input-container">
-                        <input type="text" id="todo-input" placeholder="What's essential today?" maxlength="60">
+                        <input type="text" id="todo-input" placeholder="What's essential today?" maxlength="60"
+                            autocomplete="off" autofocus>
                         <button id="add-todo-btn">+</button>
                     </div>
                     <ul id="todo-list" class="todo-list">
@@ -61,19 +89,32 @@
                 </section>
             </div>
 
-            <!-- Right Column -->
-            <div class="col-right">
-                <section class="widget news-widget">
-                    <h3>Morning Briefing</h3>
-                    <ul id="news-list" class="news-list">
-                        <!-- News injected here by JS -->
-                    </ul>
-                </section>
+            <!-- Secondary Area: Tabs -->
+            <div class="col-side secondary-area">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-target="news-panel">Briefing</button>
+                    <button class="tab-btn" data-target="tech-panel">Tech</button>
+                </div>
+
+                <div class="tabs-content">
+                    <section id="news-panel" class="tab-panel active">
+                        <ul id="news-list" class="news-list">
+                            <!-- News injected here by JS -->
+                        </ul>
+                    </section>
+
+                    <section id="tech-panel" class="tab-panel">
+                        <ul id="tech-list" class="news-list">
+                            <!-- Substack feeds injected here by JS -->
+                            <li class="news-item">Loading insights...</li>
+                        </ul>
+                    </section>
+                </div>
             </div>
         </main>
 
     </div>
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
 
 </html>
