@@ -18,7 +18,7 @@
         <header class="header">
             <div class="header-left">
                 <h1 id="greeting">Good Morning</h1>
-                <div class="quote-container">
+                <div class="quote-container" id="quote-container" title="Click to shuffle quote">
                     <p id="quote-text">"Loading inspiration..."</p>
                     <p id="quote-author"></p>
                 </div>
@@ -91,9 +91,24 @@
 
             <!-- Secondary Area: Tabs -->
             <div class="col-side secondary-area">
+
+                <!-- Markets Snapshot -->
+                <div class="markets-ticker" id="markets-ticker">
+                    <div class="market-item">
+                        <span class="market-name">NASDAQ</span>
+                        <span class="market-value" id="market-nasdaq">--%</span>
+                    </div>
+                    <span class="divider">•</span>
+                    <div class="market-item">
+                        <span class="market-name">NIFTY</span>
+                        <span class="market-value" id="market-nifty">--%</span>
+                    </div>
+                </div>
+
                 <div class="tabs-header">
                     <button class="tab-btn active" data-target="news-panel">Briefing</button>
                     <button class="tab-btn" data-target="tech-panel">Tech</button>
+                    <button class="tab-btn" data-target="perspective-panel">Perspective</button>
                 </div>
 
                 <div class="tabs-content">
@@ -107,6 +122,13 @@
                         <ul id="tech-list" class="news-list">
                             <!-- Substack feeds injected here by JS -->
                             <li class="news-item">Loading insights...</li>
+                        </ul>
+                    </section>
+
+                    <section id="perspective-panel" class="tab-panel">
+                        <ul id="perspective-list" class="news-list">
+                            <!-- Perspective content injected here by JS -->
+                            <li class="news-item">Loading perspective...</li>
                         </ul>
                     </section>
                 </div>

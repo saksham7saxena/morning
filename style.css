@@ -76,12 +76,28 @@ h1 {
     line-height: 1.1;
 }
 
+
 .quote-container {
     color: var(--quote-color);
     font-size: 1.15rem;
     font-family: var(--font-serif);
     font-style: italic;
     max-width: 500px;
+    cursor: pointer;
+    /* added for shuffle interaction */
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.quote-container:hover {
+    opacity: 0.8;
+}
+
+.quote-container:active {
+    transform: scale(0.98);
+}
+
+.quote-fade-out {
+    opacity: 0 !important;
 }
 
 #quote-author {
@@ -482,7 +498,39 @@ input:checked+.slider:before {
 /* Secondary Area: Tabs */
 .secondary-area {
     animation: fadeIn 1s ease-out 0.4s backwards;
+    display: flex;
+    flex-direction: column;
 }
+
+.markets-ticker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    letter-spacing: 0.5px;
+}
+
+.market-item {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.market-value.positive {
+    color: #10b981;
+}
+
+/* Emerald */
+.market-value.negative {
+    color: #ef4444;
+}
+
+/* Red */
 
 .tabs-header {
     display: flex;

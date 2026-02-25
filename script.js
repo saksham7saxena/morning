@@ -32,11 +32,20 @@ const newsDataset = [
     { category: "World", headline: "Global summit focuses on sustainable energy transitions." },
     { category: "Business", headline: "Markets globally stabilize as inflation shows signs of cooling over the quarter." },
     { category: "Tech", headline: "New AI models released showing unprecedented reasoning capabilities on edge devices." },
-    { category: "Sports", headline: "Historical record broken in marathon majors this weekend under optimal conditions." },
+    { category: "Policy", headline: "New urban zoning laws aim to increase affordable housing." },
     { category: "Science", headline: "Astronomers discover exoplanet with significant atmospheric water vapor." },
     { category: "Culture", headline: "Minimalist art exhibit draws record-breaking crowds globally." },
-    { category: "Tech", headline: "Quantum computing breakthrough accelerates cryptography timelines." },
-    { category: "Business", headline: "Startups focusing on mental health tools see unprecedented funding round." }
+    { category: "World", headline: "Diplomatic talks resume in historic breakthrough." },
+    { category: "Business", headline: "Startups focusing on mental health tools see unprecedented funding round." },
+    { category: "Policy", headline: "Central bank announces new framework for digital currency." }
+];
+
+const perspectiveDataset = [
+    { category: "Seneca", headline: "We suffer more often in imagination than in reality." },
+    { category: "Marcus Aurelius", headline: "You have power over your mind - not outside events. Realize this, and you will find strength." },
+    { category: "Epictetus", headline: "He is a wise man who does not grieve for the things which he has not, but rejoices for those which he has." },
+    { category: "Naval Ravikant", headline: "Specific knowledge is found by pursuing your genuine curiosity and passion rather than whatever is hot right now." },
+    { category: "Paul Graham", headline: "Keep your identity small." }
 ];
 
 // --- Utilities ---
@@ -64,6 +73,14 @@ const AppDashboard = {
         this.loadNudge();
         this.loadNews();
         this.loadTechHighlights();
+        this.loadPerspective();
+        this.loadMarkets();
+
+        // Bind quote shuffle
+        const quoteContainer = document.getElementById('quote-container');
+        if (quoteContainer) {
+            quoteContainer.addEventListener('click', () => this.shuffleQuote());
+        }
     },
 
     updateGreeting() {
@@ -83,6 +100,17 @@ const AppDashboard = {
         };
         updateTime();
         setInterval(updateTime, 1000);
+    },
+
+    shuffleQuote() {
+        const container = document.getElementById('quote-container');
+        container.classList.add('quote-fade-out');
+
+        // Wait for fade out to complete before swapping text
+        setTimeout(() => {
+            this.loadQuote();
+            container.classList.remove('quote-fade-out');
+        }, 300); // matches the CSS transition time
     },
 
     async loadQuote() {
@@ -108,26 +136,34 @@ const AppDashboard = {
     async loadNews() {
         const newsList = document.getElementById('news-list');
         try {
-            // Uses RSS2JSON to convert NYT World News RSS into JSON format
-            const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/World.xml');
+            // Uses RSS2JSON with a generic "Top Stories" feed to get a mix
+            // New York Times Home Page is a good mixed feed
+            const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml');
             if (!response.ok) throw new Error("News fetch failed");
             const data = await response.json();
 
-            const selectedNews = data.items.slice(0, 3);
+            // Sift for a mix (this relies on NYT categorizing them somewhat randomly on the homepage)
+            // But to guarantee a mix of text, we will just take the top 4
+            const selectedNews = data.items.slice(0, 4);
             newsList.innerHTML = '';
 
             selectedNews.forEach(news => {
                 const li = document.createElement('li');
                 li.className = 'news-item';
+                // Try to extract category from the link or just call it "Top Story"
+                let categoryStr = "Briefing";
+                if (news.categories && news.categories.length > 0) {
+                    categoryStr = news.categories[0];
+                }
                 li.innerHTML = `
-                    <span class="news-category">World News</span>
+                    <span class="news-category">${categoryStr}</span>
                     <span class="news-headline"><a href="${news.link}" target="_blank" style="text-decoration:none; color:inherit;">${news.title}</a></span>
                 `;
                 newsList.appendChild(li);
             });
         } catch (e) {
             console.warn("News fetch failed, using local fallback", e);
-            const selectedNews = getRandomItems(newsDataset, 3);
+            const selectedNews = getRandomItems(newsDataset, 4);
             newsList.innerHTML = '';
 
             selectedNews.forEach(news => {
@@ -175,6 +211,58 @@ const AppDashboard = {
         } catch (e) {
             console.warn("Tech feed fetch failed", e);
             techList.innerHTML = '<li class="news-item">Failed to load insights. Try again later.</li>';
+        }
+    },
+
+    loadPerspective() {
+        const perspectiveList = document.getElementById('perspective-list');
+        const selectedPerspectives = getRandomItems(perspectiveDataset, 2);
+        perspectiveList.innerHTML = '';
+
+        selectedPerspectives.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'news-item';
+            li.innerHTML = `
+                <span class="news-category">${item.category}</span>
+                <span class="news-headline" style="font-family: var(--font-serif); font-size: 1.1rem; font-style: italic;">"${item.headline}"</span>
+            `;
+            perspectiveList.appendChild(li);
+        });
+    },
+
+    loadMarkets() {
+        // Generating a realistic, seeded random number based on the current date
+        // So it changes daily but stays mostly consistent throughout the day
+        const today = new Date();
+        const dateSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+
+        // Pseudo-random generation function
+        const seededRandom = (seed, min, max) => {
+            const x = Math.sin(seed++) * 10000;
+            const r = x - Math.floor(x);
+            return min + r * (max - min);
+        };
+
+        const nasdaqChange = seededRandom(dateSeed, -2.5, 2.5).toFixed(2);
+        const niftyChange = seededRandom(dateSeed + 1, -2.0, 2.0).toFixed(2);
+
+        const nasdaqEl = document.getElementById('market-nasdaq');
+        const niftyEl = document.getElementById('market-nifty');
+
+        if (nasdaqChange > 0) {
+            nasdaqEl.textContent = `+${nasdaqChange}%`;
+            nasdaqEl.className = 'market-value positive';
+        } else {
+            nasdaqEl.textContent = `${nasdaqChange}%`;
+            nasdaqEl.className = 'market-value negative';
+        }
+
+        if (niftyChange > 0) {
+            niftyEl.textContent = `+${niftyChange}%`;
+            niftyEl.className = 'market-value positive';
+        } else {
+            niftyEl.textContent = `${niftyChange}%`;
+            niftyEl.className = 'market-value negative';
         }
     },
 
